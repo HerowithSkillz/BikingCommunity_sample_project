@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Register</h2>
+<form id="register-form">
+  <label>Username: <input name="username" required /></label><br/>
+  <label>Email: <input name="email" type="email"/></label><br/>
+  <label>Password: <input name="password" type="password" required/></label><br/>
+  <button type="submit">Register</button>
+</form>
+<div id="register-result"></div>
+
+{% block scripts %}
+<script>
+const BACKEND = "http://127.0.0.1:8001";
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const payload = {
+    username: fd.get('username'),
+    email: fd.get('email'),
+    password: fd.get('password')
+  };
+  const resp = await fetch(`${BACKEND}/api/auth/register/`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload),
+    credentials: 'include'
+  });
+  const res = await resp.json();
+  document.getElementById('register-result').innerText = JSON.stringify(res);
+  if (resp.status === 201) {
+    // auto-redirect to login page or bikes
+    window.location.href = '/login/';
+  }
+});
+</script>
+{% endblock %}
+{% endblock %}

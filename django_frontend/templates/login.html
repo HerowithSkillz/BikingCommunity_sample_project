@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Login</h2>
+<form id="login-form">
+  <label>Username: <input name="username" required /></label><br/>
+  <label>Password: <input name="password" type="password" required/></label><br/>
+  <button type="submit">Login</button>
+</form>
+<div id="login-result"></div>
+
+{% block scripts %}
+<script>
+const BACKEND = "http://127.0.0.1:8001";
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const payload = {
+    username: fd.get('username'),
+    password: fd.get('password')
+  };
+  const resp = await fetch(`${BACKEND}/api/auth/login/`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload),
+    credentials: 'include'  // important to store session cookie from backend
+  });
+  const res = await resp.json();
+  document.getElementById('login-result').innerText = JSON.stringify(res);
+  if (resp.ok) {
+    window.location.href = '/bikes/';
+  }
+});
+</script>
+{% endblock %}
+{% endblock %}
