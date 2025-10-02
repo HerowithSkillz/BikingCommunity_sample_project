@@ -6,24 +6,23 @@ from django.shortcuts import get_object_or_404
 from .models import Bike
 from .serializers import BikeSerializer
 
-
 # --------------------
 # LIST + CREATE
 # --------------------
 @api_view(["GET"])
-@permission_classes([AllowAny])  # anyone can view bikes
+@permission_classes([AllowAny])
 def bike_list(request):
-    bikes = Bike.objects.all()
+    bikes = Bike.objects.all().order_by('-created_at')  # newest first
     serializer = BikeSerializer(bikes, many=True)
     return Response(serializer.data)
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])  # only logged-in users can create
+@permission_classes([IsAuthenticated])
 def bike_create(request):
     serializer = BikeSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save(owner=request.user)  # attach logged-in user as owner
+        serializer.save(owner=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -39,7 +38,7 @@ def bike_detail(request, pk):
     return Response(serializer.data)
 
 
-@api_view(["PUT"])
+@api_view(["PUT", "PATCH"])
 @permission_classes([IsAuthenticated])
 def bike_update(request, pk):
     bike = get_object_or_404(Bike, pk=pk)
@@ -47,7 +46,7 @@ def bike_update(request, pk):
     if bike.owner != request.user:
         return Response({"error": "Not allowed"}, status=status.HTTP_403_FORBIDDEN)
 
-    serializer = BikeSerializer(bike, data=request.data)
+    serializer = BikeSerializer(bike, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save(owner=request.user)
         return Response(serializer.data)
@@ -64,4 +63,3 @@ def bike_delete(request, pk):
 
     bike.delete()
     return Response({"message": "Bike deleted"}, status=status.HTTP_204_NO_CONTENT)
-
