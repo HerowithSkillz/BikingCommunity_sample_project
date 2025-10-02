@@ -16,20 +16,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from api.views import BikeViewSet
 from api import auth_views
 
-router = DefaultRouter()
-router.register(r"api", BikeViewSet, basename="API")
-
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path("api/", include(router.urls)),
+    path("admin/", admin.site.urls),
 
-    #auth end points
-    path("api/auth/register/", auth_views.register_view),
-    path("api/auth/login/", auth_views.login_view),
-    path("api/auth/logout/", auth_views.logout_view),
-    path("api/auth/user/", auth_views.current_user_view),
+    # Auth
+    path("api/auth/login/", auth_views.login_view, name="api_login"),
+    path("api/auth/logout/", auth_views.logout_view, name="api_logout"),
+    path("api/auth/signup/", auth_views.register_view, name="api_signup"),
+    path("api/auth/user/", auth_views.current_user, name="api_user"),
+
+    # Bikes API
+    path("api/", include("api.urls")),  # include bikes urls
 ]

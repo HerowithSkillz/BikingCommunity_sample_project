@@ -19,9 +19,18 @@ from django.urls import path
 from webui import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', views.index, name='index'),
-    path('bikes/', views.bike_page, name='bikes_page'),
-    path('login/', views.login_page, name='login_page'),
-    path('register/', views.register_page, name='register_page'),
+    path("admin/", admin.site.urls),
+    path("", views.bike_list, name="index"),
+
+    # Auth
+    path("login/", views.login_view, name="login"),
+    path("logout/", views.logout_view, name="logout"),
+    path("register/", views.register_view, name="register"),
+
+    #Bikes
+    path("bikes/", views.bike_list, name="bike_list"),
+    path("bikes/add/", views.add_bike, name="add_bike"),
+    path("bikes/<int:bike_id>/edit/", views.edit_bike, name="edit_bike"),
+    path("bikes/<int:bike_id>/delete/", views.delete_bike, name="delete_bike"),
 ]
+

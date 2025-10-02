@@ -1,141 +1,29 @@
 {% extends "base.html" %}
+{% block title %}My Bikes{% endblock %}
 {% block content %}
-<h2>Bikes</h2>
-
-<section>
-  <h3>Create Bike</h3>
-  <form id="create-bike-form">
-    <label>Name: <input name="name" required /></label><br/>
-    <label>Brand: <input name="brand" /></label><br/>
-    <label>Price: <input name="price" type="number" step="0.01" /></label><br/>
-    <button>Create</button>
-  </form>
-</section>
-
-<hr/>
-
-<section>
-  <h3>All Bikes</h3>
-  <div id="bikes-list">Loading...</div>
-</section>
-
-<!-- edit modal-ish -->
-<div id="edit-section" style="display:none;">
-  <h3>Edit Bike</h3>
-  <form id="edit-bike-form">
-    <input type="hidden" name="id" />
-    <label>Name: <input name="name" required /></label><br/>
-    <label>Brand: <input name="brand" /></label><br/>
-    <label>Price: <input name="price" type="number" step="0.01" /></label><br/>
-    <button>Save</button>
-    <button id="cancel-edit">Cancel</button>
-  </form>
-</div>
-
-{% block scripts %}
-<script>
-const BACKEND = "http://127.0.0.1:8001";
-
-async function loadBikes() {
-  const resp = await fetch(`${BACKEND}/api/bikes/`, { credentials: 'include' });
-  const data = await resp.json();
-  const cont = document.getElementById('bikes-list');
-  cont.innerHTML = '';
-  data.forEach(b => {
-    const el = document.createElement('div');
-    el.innerHTML = `
-      <strong>${b.name}</strong> (${b.brand}) - ₹${b.price}
-      <br/>Owner: ${b.owner_username || 'N/A'}
-      <br/>
-      <button data-id="${b.id}" class="edit-btn">Edit</button>
-      <button data-id="${b.id}" class="del-btn">Delete</button>
-      <hr/>
-    `;
-    cont.appendChild(el);
-  });
-
-  // attach handlers
-  document.querySelectorAll('.del-btn').forEach(btn => {
-    btn.onclick = async () => {
-      const id = btn.dataset.id;
-      if (!confirm('Delete this bike?')) return;
-      const r = await fetch(`${BACKEND}/api/bikes/${id}/`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      if (r.status === 204) loadBikes();
-      else alert('Delete failed or you lack permissions');
-    };
-  });
-
-  document.querySelectorAll('.edit-btn').forEach(btn => {
-    btn.onclick = async () => {
-      const id = btn.dataset.id;
-      // fetch bike
-      const r = await fetch(`${BACKEND}/api/bikes/${id}/`, { credentials: 'include' });
-      const bike = await r.json();
-      const form = document.getElementById('edit-bike-form');
-      form.name.value = bike.name;
-      form.brand.value = bike.brand;
-      form.price.value = bike.price;
-      form.id.value = bike.id;
-      document.getElementById('edit-section').style.display = 'block';
-    };
-  });
-}
-
-document.getElementById('create-bike-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const payload = {
-    name: fd.get('name'),
-    brand: fd.get('brand'),
-    price: fd.get('price') || 0
-  };
-  const resp = await fetch(`${BACKEND}/api/bikes/`, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(payload),
-    credentials: 'include'
-  });
-  if (resp.status === 201) {
-    e.target.reset();
-    loadBikes();
-  } else {
-    const txt = await resp.text();
-    alert('Create failed: ' + txt);
-  }
-});
-
-document.getElementById('edit-bike-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const id = fd.get('id');
-  const payload = {
-    name: fd.get('name'),
-    brand: fd.get('brand'),
-    price: fd.get('price') || 0
-  };
-  const resp = await fetch(`${BACKEND}/api/bikes/${id}/`, {
-    method: 'PATCH',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(payload),
-    credentials: 'include'
-  });
-  if (resp.ok) {
-    document.getElementById('edit-section').style.display = 'none';
-    loadBikes();
-  } else {
-    alert('Update failed');
-  }
-});
-
-document.getElementById('cancel-edit').addEventListener('click', (e) => {
-  e.preventDefault();
-  document.getElementById('edit-section').style.display = 'none';
-});
-
-loadBikes();
-</script>
-{% endblock %}
+<h2>My Bikes</h2>
+<a href="{% url 'add_bike' %}" class="button">Add New Bike</a>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Manufacturer</th>
+        <th>Actions</th>
+    </tr>
+    {% for bike in bikes %}
+    <tr>
+        <td>{{ bike.id }}</td>
+        <td>{{ bike.name }}</td>
+        <td>{{ bike.description }}</td>
+        <td>{{ bike.manufacturer }}</td>
+        <td>
+            <a href="{% url 'edit_bike' bike.id %}" class="button">Edit</a>
+            <a href="{% url 'delete_bike' bike.id %}" class="button">Delete</a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No bikes found.</td></tr>
+    {% endfor %}
+</table>
 {% endblock %}
