@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.core.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
 from rest_framework.decorators import api_view
 
 @api_view(["GET"])
@@ -15,7 +17,7 @@ def login_view(request):
     password = request.data.get("password")
     user = authenticate(request, username=username, password=password)
     if user is not None:
-        login(request, user)   # stores session in DB and sets cookie
+        login(request, user)
         return JsonResponse({"message": "Logged in", "user": {"id": user.id, "username": user.username}})
     return JsonResponse({"error": "Invalid credentials"}, status=400)
 
@@ -32,6 +34,11 @@ def register_view(request):
 
     if User.objects.filter(username=username).exists():
         return JsonResponse({"error": "Username already exists"}, status=400)
+
+    try:
+        validate_password(password)
+    except ValidationError as e:
+        return JsonResponse({"error": e.messages}, status=400)
 
     user = User.objects.create_user(username=username, email=email, password=password)
     return JsonResponse(
