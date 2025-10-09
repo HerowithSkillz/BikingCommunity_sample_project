@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    <div style="text-align:right">
+        Logged in as <strong>{{ user }} </strong> | 
+        <a href = "{% url 'logout_user'%}">Logout</a>
+    </div>
+    <h2>Dashboard</h2>
+    <p>WELCOME TO THE DASHBOARD!</p>
+    <p>Data from Auth Server: {{ data }}</p>
+</body>
+</html>
