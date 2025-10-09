@@ -6,10 +6,13 @@
     {% csrf_token %}
     <label>Name:</label>
     <input type="text" name="name" value="{{ bike.name }}" required>
+    
     <label>Description:</label>
     <textarea name="description" required>{{ bike.description }}</textarea>
-    <label>Manufacturer:</label>
-    <input type="text" name="manufacturer" value="{{ bike.manufacturer }}" required>
+    
+    <label>Brand:</label>
+    <input type="text" name="manufacturer" value="{{ bike.brand }}" required> <!-- backend uses 'brand' -->
+    
     <button type="submit">Update Bike</button>
 </form>
 {% endblock %}

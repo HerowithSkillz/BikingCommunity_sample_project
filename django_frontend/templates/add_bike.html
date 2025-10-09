@@ -6,10 +6,13 @@
     {% csrf_token %}
     <label>Name:</label>
     <input type="text" name="name" required>
+    
     <label>Description:</label>
     <textarea name="description" required></textarea>
-    <label>Manufacturer:</label>
-    <input type="text" name="manufacturer" required>
+    
+    <label>Brand:</label>
+    <input type="text" name="manufacturer" required> <!-- frontend sends 'manufacturer', backend maps it to 'brand' -->
+    
     <button type="submit">Add Bike</button>
 </form>
 {% endblock %}

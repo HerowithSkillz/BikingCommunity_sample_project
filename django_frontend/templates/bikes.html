@@ -8,7 +8,7 @@
         <th>ID</th>
         <th>Name</th>
         <th>Description</th>
-        <th>Manufacturer</th>
+        <th>Brand</th> <!-- corrected column title -->
         <th>Actions</th>
     </tr>
     {% for bike in bikes %}
@@ -16,7 +16,7 @@
         <td>{{ bike.id }}</td>
         <td>{{ bike.name }}</td>
         <td>{{ bike.description }}</td>
-        <td>{{ bike.manufacturer }}</td>
+        <td>{{ bike.brand }}</td> <!-- match backend field -->
         <td>
             <a href="{% url 'edit_bike' bike.id %}" class="button">Edit</a>
             <a href="{% url 'delete_bike' bike.id %}" class="button">Delete</a>
