@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Biker Hub</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      .hero {
+        background: linear-gradient(90deg, rgba(34,193,195,0.08), rgba(253,187,45,0.04));
+        padding: 3rem 1rem;
+        border-radius: .5rem;
+      }
+      .biker-img {
+        height: 180px;
+        object-fit: cover;
+      }
+      .card-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="#">Biker_hub</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navMenu">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="#bikes">Bikes</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#events">Events</a>
+            </li>
+          </ul>
+
+          <div class="d-flex">
+            {% if user %}
+              <div class="me-3 d-flex align-items-center">
+                <small class="text-muted">Signed in as <strong class="ms-1">{{ user }}</strong></small>
+              </div>
+              <a class="btn btn-outline-secondary" href="{% url 'logout_user' %}">Logout</a>
+            {% else %}
+              <a class="btn btn-outline-primary me-2" href="{% url 'login_user' %}">Login</a>
+              <a class="btn btn-primary" href="{% url 'register_user' %}">Signup</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container my-4">
+      <section class="hero mb-4">
+        <div class="row align-items-center">
+          <div class="col-md-7">
+            <h1 class="display-6">Welcome to the Biker Community</h1>
+            <p class="lead">Share rides, discover events, and connect with fellow riders. Create an account to join local groups, post rides, and RSVP to events.</p>
+            <p>
+              <a href="/register/" class="btn btn-primary btn-lg me-2">Get started</a>
+              <a href="#bikes" class="btn btn-outline-secondary btn-lg">Browse bikes</a>
+            </p>
+          </div>
+          <div class="col-md-5 text-center d-none d-md-block">
+            <img src="https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Group of bikers" class="img-fluid rounded shadow-sm">
+          </div>
+        </div>
+      </section>
+
+      <section id="bikes" class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h4">Popular riders & bikes</h2>
+          <a href="#" class="small">See all</a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+          <div class="col">
+            <div class="card h-100">
+              <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" class="card-img-top biker-img" alt="Biker 1">
+              <div class="card-body">
+                <h5 class="card-title">Mountain King</h5>
+                <p class="card-text">A dependable trail partner — 29er, disc brakes, and ready for muddy climbs.</p>
+              </div>
+              <div class="card-footer text-muted small">Posted by Alex • 3 rides</div>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="card h-100">
+              <img src="https://images.unsplash.com/photo-1505238680356-667803448bb6?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" class="card-img-top biker-img" alt="Biker 2">
+              <div class="card-body">
+                <h5 class="card-title">City Cruiser</h5>
+                <p class="card-text">Comfortable urban commuter with panniers — great for weekend jaunts and errands.</p>
+              </div>
+              <div class="card-footer text-muted small">Posted by Priya • 5 rides</div>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="card h-100">
+              <img src="https://images.unsplash.com/photo-1509395176047-4a66953fd231?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" class="card-img-top biker-img" alt="Biker 3">
+              <div class="card-body">
+                <h5 class="card-title">Road Runner</h5>
+                <p class="card-text">Lightweight road bike built for speed — group-friendly and race-ready.</p>
+              </div>
+              <div class="card-footer text-muted small">Posted by Marco • 2 rides</div>
+            </div>
+          </div>
+
+          <!-- repeat a few sample cards -->
+          <div class="col">
+            <div class="card h-100">
+              <img src="https://images.unsplash.com/photo-1445964047600-cdbdb873673d?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" class="card-img-top biker-img" alt="Biker 4">
+              <div class="card-body">
+                <h5 class="card-title">Trail Blazer</h5>
+                <p class="card-text">Fat-tyre beast for sandy beaches and snowy trails.</p>
+              </div>
+              <div class="card-footer text-muted small">Posted by Sam • 1 ride</div>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="card h-100">
+              <img src="https://images.unsplash.com/photo-1495567720989-cebdbdd97913?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" class="card-img-top biker-img" alt="Biker 5">
+              <div class="card-body">
+                <h5 class="card-title">Commuter Pro</h5>
+                <p class="card-text">Reliable daily rider with integrated lights and fast-rolling tires.</p>
+              </div>
+              <div class="card-footer text-muted small">Posted by Kim • 8 rides</div>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="card h-100">
+              <img src="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" class="card-img-top biker-img" alt="Biker 6">
+              <div class="card-body">
+                <h5 class="card-title">Adventure Seeker</h5>
+                <p class="card-text">Touring-ready with racks and lots of stories from the road.</p>
+              </div>
+              <div class="card-footer text-muted small">Posted by Noor • 4 rides</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="events" class="mb-5">
+        <h2 class="h5 mb-3">Upcoming events</h2>
+        <div class="list-group">
+          <a href="#" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">Community Night Ride</h5>
+              <small>Oct 18</small>
+            </div>
+            <p class="mb-1">A relaxed, social night ride through the city. Lights required.</p>
+            <small>Meeting point: Riverside Park</small>
+          </a>
+
+          <a href="#" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">Gravel Grinder</h5>
+              <small>Nov 2</small>
+            </div>
+            <p class="mb-1">A 60km gravel route with food stop mid-way. All skill levels welcome.</p>
+            <small>Organiser: Trail Blazers</small>
+          </a>
+        </div>
+      </section>
+
+      <footer class="border-top pt-3 pb-5 text-center small text-muted">
+        © <span id="year"></span> Biker_hub — Connect. Ride. Share.
+      </footer>
+    </main>
+
+    <script>
+      // set footer year
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

@@ -53,4 +53,15 @@ def dashboard(request):
     r = requests.get(f"{AUTH_SERVER}/api/protected/", headers=headers)
     data = r.json() if r.status_code == 200 else {}
 
-    return render(request, 'dashboard.html', {"user": request.session.get("username"), "data": data})
+    # Render the community landing page but with the logged-in navbar
+    return render(request, 'biker_hub.html', {"user": request.session.get("username"), "data": data})
+
+
+def home(request):
+    """Public landing page for the biker hub.
+
+    If the user is already logged in (session contains 'username'), the
+    template will display the logged-in navbar with logout.
+    """
+    username = request.session.get('username')
+    return render(request, 'biker_hub.html', {"user": username})
