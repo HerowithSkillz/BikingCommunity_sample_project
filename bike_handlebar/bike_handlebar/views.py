@@ -65,3 +65,9 @@ def home(request):
     """
     username = request.session.get('username')
     return render(request, 'biker_hub.html', {"user": username})
+
+
+def bikes_view(request):
+    """Render the bikes listing page which fetches bikes from the API client-side."""
+    username = request.session.get('username')
+    return render(request, 'bikes.html', {"user": username})
