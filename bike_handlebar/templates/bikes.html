@@ -76,7 +76,7 @@
             <div class="col">
               <div class="card h-100">
                 <div class="card-body">
-                  {% if user %}
+                  {% if user and b.owner_username == user %}
                   <div class="d-flex gap-2 mb-2">
                     <button class="btn btn-sm btn-outline-primary" data-id="{{ b.id }}" data-action="edit">Edit</button>
                     <button class="btn btn-sm btn-outline-danger" data-id="{{ b.id }}" data-action="delete">Delete</button>
@@ -85,7 +85,12 @@
                   <h5 class="card-title">{{ b.company|escape }} {{ b.model|escape }}</h5>
                   <p class="card-text">{{ b.description|default_if_none:""|escape }}</p>
                 </div>
-                <div class="card-footer text-muted small">Year: {{ b.year }}</div>
+                <div class="card-footer text-muted small">
+                  Year: {{ b.year }}
+                  {% if b.owner_username %}
+                    • Owner: {{ b.owner_username }}
+                  {% endif %}
+                </div>
               </div>
             </div>
             {% endfor %}
@@ -178,14 +183,18 @@
       function renderBikes(bikes){
         const container = document.getElementById('cards');
         container.innerHTML = '';
+        const currentUser = '{{ user|escapejs }}';
+        
         bikes.forEach(b => {
           const col = document.createElement('div'); col.className = 'col';
-          const editControls = `{% if user %}` +
+          const isOwner = currentUser && b.owner_username === currentUser;
+          const editControls = isOwner ? 
             `<div class="d-flex gap-2 mb-2">` +
               `<button class="btn btn-sm btn-outline-primary" data-id="${b.id}" data-action="edit">Edit</button>` +
               `<button class="btn btn-sm btn-outline-danger" data-id="${b.id}" data-action="delete">Delete</button>` +
-            `</div>` +
-          `{% endif %}`;
+            `</div>` : '';
+
+          const ownerInfo = b.owner_username ? ` • Owner: ${escapeHtml(b.owner_username)}` : '';
 
           col.innerHTML = `\
             <div class="card h-100">\
@@ -194,7 +203,7 @@
                 <h5 class="card-title">${escapeHtml(b.company)} ${escapeHtml(b.model)}</h5>\
                 <p class="card-text">${escapeHtml(b.description || '')}</p>\
               </div>\
-              <div class="card-footer text-muted small">Year: ${b.year}</div>\
+              <div class="card-footer text-muted small">Year: ${b.year}${ownerInfo}</div>\
             </div>`;
 
           container.appendChild(col);

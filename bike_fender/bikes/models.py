@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Bike(models.Model):
@@ -6,6 +7,7 @@ class Bike(models.Model):
     company = models.CharField(max_length=128)
     year = models.PositiveSmallIntegerField()
     description = models.TextField(blank=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bikes', null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
