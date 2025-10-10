@@ -53,8 +53,18 @@ def dashboard(request):
     r = requests.get(f"{AUTH_SERVER}/api/protected/", headers=headers)
     data = r.json() if r.status_code == 200 else {}
 
+    # Fetch bikes for the landing page
+    bikes = []
+    try:
+        bikes_r = requests.get(f"{AUTH_SERVER}/api/bikes/bikes/?page_size=6", headers=headers, timeout=5)
+        if bikes_r.status_code == 200:
+            payload = bikes_r.json()
+            bikes = payload.get('results', payload) if isinstance(payload, dict) else payload
+    except Exception:
+        pass
+
     # Render the community landing page but with the logged-in navbar
-    return render(request, 'biker_hub.html', {"user": request.session.get("username"), "data": data, "access": access_token})
+    return render(request, 'biker_hub.html', {"user": request.session.get("username"), "data": data, "access": access_token, "bikes": bikes})
 
 
 def home(request):
@@ -64,7 +74,22 @@ def home(request):
     template will display the logged-in navbar with logout.
     """
     username = request.session.get('username')
-    return render(request, 'biker_hub.html', {"user": username, "access": request.session.get('access')})
+    access = request.session.get('access')
+    
+    # Fetch bikes for the landing page (limit to 6 for homepage)
+    bikes = []
+    try:
+        headers = {}
+        if access:
+            headers['Authorization'] = f'Bearer {access}'
+        bikes_r = requests.get(f"{AUTH_SERVER}/api/bikes/bikes/?page_size=6", headers=headers, timeout=5)
+        if bikes_r.status_code == 200:
+            payload = bikes_r.json()
+            bikes = payload.get('results', payload) if isinstance(payload, dict) else payload
+    except Exception:
+        pass
+    
+    return render(request, 'biker_hub.html', {"user": username, "access": access, "bikes": bikes})
 
 
 def bikes_view(request):
@@ -88,3 +113,17 @@ def bikes_view(request):
         bikes = None
 
     return render(request, 'bikes.html', {"user": username, "access": access, "bikes": bikes})
+
+
+def add_bike_view(request):
+    """Render the add bike page."""
+    username = request.session.get('username')
+    access = request.session.get('access')
+    return render(request, 'add_bike.html', {"user": username, "access": access})
+
+
+def edit_bike_view(request):
+    """Render the edit bike page."""
+    username = request.session.get('username')
+    access = request.session.get('access')
+    return render(request, 'edit_bike.html', {"user": username, "access": access})

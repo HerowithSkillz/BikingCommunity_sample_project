@@ -65,7 +65,7 @@
           <h2 class="h5">Community Bikes</h2>
           <div>
             {% if user %}
-            <button class="btn btn-sm btn-primary" id="openCreate">Add bike</button>
+            <a href="{% url 'add_bike' %}" class="btn btn-sm btn-outline-primary">Add bike</a>
             {% endif %}
           </div>
         </div>
@@ -78,7 +78,7 @@
                 <div class="card-body">
                   {% if user and b.owner_username == user %}
                   <div class="d-flex gap-2 mb-2">
-                    <button class="btn btn-sm btn-outline-primary" data-id="{{ b.id }}" data-action="edit">Edit</button>
+                    <a href="{% url 'edit_bike' %}?id={{ b.id }}" class="btn btn-sm btn-outline-primary">Edit</a>
                     <button class="btn btn-sm btn-outline-danger" data-id="{{ b.id }}" data-action="delete">Delete</button>
                   </div>
                   {% endif %}
@@ -106,43 +106,6 @@
         </nav>
       </section>
 
-      <!-- Create/Edit Modal -->
-      <div class="modal fade" id="bikeModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="bikeModalTitle">Add Bike</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <form id="bikeForm">
-                <input type="hidden" id="bikeId" />
-                <div class="mb-3">
-                  <label class="form-label">Company</label>
-                  <input type="text" id="company" class="form-control" required />
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Model</label>
-                  <input type="text" id="model" class="form-control" required />
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Year</label>
-                  <input type="number" id="year" class="form-control" required />
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Description</label>
-                  <textarea id="description" class="form-control" rows="3"></textarea>
-                </div>
-              </form>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-              <button type="button" class="btn btn-primary" id="saveBike">Save</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <footer class="border-top pt-3 pb-5 text-center small text-muted mt-5">
         © <span id="year"></span> Biker_hub — Connect. Ride. Share.
       </footer>
@@ -154,22 +117,11 @@
       const API_BASE = 'http://127.0.0.1:8001/api/bikes/bikes/';
       let currentPageUrl = API_BASE;
 
-      // Bootstrap modal
-      const bikeModalEl = document.getElementById('bikeModal');
-      const bikeModal = new bootstrap.Modal(bikeModalEl);
-
-      document.getElementById('openCreate')?.addEventListener('click', () => {
-        clearForm();
-        document.getElementById('bikeModalTitle').textContent = 'Add Bike';
-        bikeModal.show();
-      });
-
-      document.getElementById('saveBike').addEventListener('click', saveBike);
-
       async function loadBikes(url = API_BASE){
         try{
           currentPageUrl = url;
-          const res = await fetch(url);
+          const headers = getAuthHeaders();
+          const res = await fetch(url, { headers });
           if(!res.ok) throw new Error('Failed to load');
           const payload = await res.json();
           renderBikes(payload.results || payload);
@@ -190,7 +142,7 @@
           const isOwner = currentUser && b.owner_username === currentUser;
           const editControls = isOwner ? 
             `<div class="d-flex gap-2 mb-2">` +
-              `<button class="btn btn-sm btn-outline-primary" data-id="${b.id}" data-action="edit">Edit</button>` +
+              `<a href="{% url 'edit_bike' %}?id=${b.id}" class="btn btn-sm btn-outline-primary">Edit</a>` +
               `<button class="btn btn-sm btn-outline-danger" data-id="${b.id}" data-action="delete">Delete</button>` +
             `</div>` : '';
 
@@ -209,8 +161,7 @@
           container.appendChild(col);
         });
 
-        // attach event listeners for edit/delete
-        container.querySelectorAll('button[data-action="edit"]').forEach(btn => btn.addEventListener('click', onEdit));
+        // attach event listeners for delete only (edit is now a link)
         container.querySelectorAll('button[data-action="delete"]').forEach(btn => btn.addEventListener('click', onDelete));
       }
 
@@ -244,61 +195,27 @@
         pagination.appendChild(createLi('Next', payload.next, !payload.next));
       }
 
-      async function onEdit(e){
-        const id = e.currentTarget.dataset.id;
-        const res = await fetch(`${API_BASE}${id}/`);
-        const data = await res.json();
-        document.getElementById('bikeId').value = data.id;
-        document.getElementById('company').value = data.company;
-        document.getElementById('model').value = data.model;
-        document.getElementById('year').value = data.year;
-        document.getElementById('description').value = data.description;
-        document.getElementById('bikeModalTitle').textContent = 'Edit Bike';
-        bikeModal.show();
-      }
-
       async function onDelete(e){
         const id = e.currentTarget.dataset.id;
         if(!confirm('Delete this bike?')) return;
-        const res = await fetch(`${API_BASE}${id}/`, { method: 'DELETE', headers: getAuthHeaders() });
-        if(res.status === 204){ loadBikes(currentPageUrl); }
-        else alert('Delete failed');
-      }
-
-      async function saveBike(){
-        const id = document.getElementById('bikeId').value;
-        const payload = {
-          company: document.getElementById('company').value,
-          model: document.getElementById('model').value,
-          year: parseInt(document.getElementById('year').value,10),
-          description: document.getElementById('description').value,
-        };
-
-        try{
-          let res;
-          if(id){
-            res = await fetch(`${API_BASE}${id}/`, { method: 'PUT', headers: {...getAuthHeaders(), 'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-          } else {
-            res = await fetch(API_BASE, { method: 'POST', headers: {...getAuthHeaders(), 'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-          }
-
-          if(res.ok){
-            bikeModal.hide();
-            clearForm();
+        
+        try {
+          const headers = getAuthHeaders();
+          const res = await fetch(`${API_BASE}${id}/`, {
+            method: 'DELETE',
+            headers: headers
+          });
+          
+          if (res.ok) {
+            // Reload bikes after successful deletion
             loadBikes(currentPageUrl);
           } else {
-            const err = await res.json();
-            alert('Save failed: ' + JSON.stringify(err));
+            alert('Failed to delete bike. Please try again.');
           }
-        }catch(err){ console.error(err); alert('Save failed'); }
-      }
-
-      function clearForm(){
-        document.getElementById('bikeId').value = '';
-        document.getElementById('company').value = '';
-        document.getElementById('model').value = '';
-        document.getElementById('year').value = '';
-        document.getElementById('description').value = '';
+        } catch (error) {
+          console.error('Error deleting bike:', error);
+          alert('Error deleting bike. Please try again.');
+        }
       }
 
       // basic HTML escape
@@ -323,8 +240,9 @@
       // If server provided initial bikes, attach listeners to those buttons.
       document.addEventListener('DOMContentLoaded', () => {
         {% if bikes %}
-          document.querySelectorAll('#cards button[data-action="edit"]').forEach(btn => btn.addEventListener('click', onEdit));
           document.querySelectorAll('#cards button[data-action="delete"]').forEach(btn => btn.addEventListener('click', onDelete));
+          // Also load bikes via API to ensure we have the proper pagination and can refresh properly
+          // but don't replace the server-rendered content immediately
         {% else %}
           loadBikes();
         {% endif %}
