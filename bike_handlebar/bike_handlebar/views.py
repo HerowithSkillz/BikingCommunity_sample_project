@@ -54,7 +54,7 @@ def dashboard(request):
     data = r.json() if r.status_code == 200 else {}
 
     # Render the community landing page but with the logged-in navbar
-    return render(request, 'biker_hub.html', {"user": request.session.get("username"), "data": data})
+    return render(request, 'biker_hub.html', {"user": request.session.get("username"), "data": data, "access": access_token})
 
 
 def home(request):
@@ -64,10 +64,27 @@ def home(request):
     template will display the logged-in navbar with logout.
     """
     username = request.session.get('username')
-    return render(request, 'biker_hub.html', {"user": username})
+    return render(request, 'biker_hub.html', {"user": username, "access": request.session.get('access')})
 
 
 def bikes_view(request):
     """Render the bikes listing page which fetches bikes from the API client-side."""
     username = request.session.get('username')
-    return render(request, 'bikes.html', {"user": username})
+    access = request.session.get('access')
+
+    # Attempt to fetch bikes from the API server so we can render them server-side
+    bikes = None
+    try:
+        headers = {}
+        if access:
+            headers['Authorization'] = f'Bearer {access}'
+        # request a large page_size to get all bikes in one response for the demo
+        r = requests.get(f"{AUTH_SERVER}/api/bikes/bikes/?page_size=1000", headers=headers, timeout=5)
+        if r.status_code == 200:
+            payload = r.json()
+            # payload may be paginated
+            bikes = payload.get('results', payload) if isinstance(payload, dict) else payload
+    except Exception:
+        bikes = None
+
+    return render(request, 'bikes.html', {"user": username, "access": access, "bikes": bikes})

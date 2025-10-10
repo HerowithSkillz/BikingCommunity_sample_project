@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.pagination import PageNumberPagination
 from .models import Bike
 from .serializers import BikeSerializer
@@ -14,5 +14,5 @@ class StandardResultsSetPagination(PageNumberPagination):
 class BikeViewSet(viewsets.ModelViewSet):
     queryset = Bike.objects.all().order_by('-created_at')
     serializer_class = BikeSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = StandardResultsSetPagination
